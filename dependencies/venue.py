@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -6,10 +6,10 @@ if TYPE_CHECKING:
 
 
 class Venue(SQLModel, table=True):
-    id: str | None = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str
     address: str | None = None
     capacity: int | None = None
     latitude: float | None = None
     longitude: float | None = None
-    events: List["Events"] = Relationship(back_populates="venue")
+    events: list["Events"] = Relationship(back_populates="venue")

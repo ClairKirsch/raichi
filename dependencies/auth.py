@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from pydantic import BaseModel
-from sqlmodel import Field, SQLModel, Session, select
+from sqlmodel import Session, select
 
 
 from dependencies.db import get_session
@@ -15,7 +15,10 @@ from dependencies.users import User
 
 SECRET_KEY = "05e36815ef8fb0f9495fa0450168319aa5afeaec20b64836a9914dff89a49d63"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 5 * (24 * 60)  # lol dude this is a school project im not implementing refresh tokens
+ACCESS_TOKEN_EXPIRE_MINUTES = 5 * (
+    24 * 60
+)  # lol dude this is a school project im not implementing refresh tokens
+
 
 class Token(BaseModel):
     access_token: str
@@ -24,10 +27,10 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
-    id: str | None = None
+    id: int | None = None
+
 
 password_hash = PasswordHash.recommended()
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -46,8 +49,9 @@ def get_user(session: Annotated[Session, Depends(get_session)], username: str):
     return user_data
 
 
-
-def authenticate_user(session: Annotated[Session, Depends(get_session)], username: str, password: str):
+def authenticate_user(
+    session: Annotated[Session, Depends(get_session)], username: str, password: str
+):
     user = get_user(session, username)
     if not user:
         return False
@@ -67,7 +71,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(session: Annotated[Session, Depends(get_session)], token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(
+    session: Annotated[Session, Depends(get_session)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -98,4 +105,3 @@ async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
     return current_user
-
