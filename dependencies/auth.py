@@ -44,7 +44,7 @@ def get_password_hash(password):
 def authenticate_user(
     session: Annotated[Session, Depends(get_session)], username: str, password: str
 ):
-    user = get_user_by_username(session, username)
+    user = get_user_by_username(session=session, username=username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -87,7 +87,7 @@ async def get_current_user(
         )
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user_by_id(session, id=token_data.id)
+    user = get_user_by_id(session=session, id=token_data.id)
     if user is None:
         raise credentials_exception
     return user

@@ -72,11 +72,7 @@ async def create_user(
         raise HTTPException(status_code=400, detail="Username already registered")
     new_user = User(
         username=user.username,
-        email=user.email,
-        full_name=user.full_name,
         hashed_password=user.password,  # In a real app, hash the password!
-        bio=user.bio,
-        profile_image=user.profile_image,
     )
     session.add(new_user)
     session.commit()
