@@ -9,6 +9,12 @@ engine = create_engine(sqlite_url, connect_args=connect_args)
 
 
 def create_db_and_tables():
+    # Import model modules so classes register with SQLModel.metadata
+    from . import association_tables  # noqa: F401
+    from . import users  # noqa: F401
+    from . import venue  # noqa: F401
+    from . import events  # noqa: F401
+
     SQLModel.metadata.create_all(engine)
 
 
