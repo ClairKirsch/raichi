@@ -33,7 +33,7 @@ class User(SQLModel, table=True):
         back_populates="receiver",
         sa_relationship_kwargs={"foreign_keys": "Messages.receiver_id"},
     )
-
+    
 
 class UserInfo(SQLModel):
     id: int
@@ -50,29 +50,11 @@ class UserInfo(SQLModel):
 
 class UserCreate(SQLModel):
     username: str
-    email: str | None = None
-    full_name: str | None = None
     password: str
-    bio: str | None = None
-    profile_image: str | None = None
 
 
-def get_user(username: str, session: Annotated[Session, Depends(get_session)]):
+def get_user_by_username(username: str, session: Annotated[Session, Depends(get_session)]):
     return session.exec(select(User).where(User.username == username)).first()
 
-
-def create_user(
-    user_create: UserCreate, session: Annotated[Session, Depends(get_session)]
-):
-    user = User(
-        username=user_create.username,
-        email=user_create.email,
-        full_name=user_create.full_name,
-        hashed_password=user_create.password,  # Reminder: hash in real app
-        bio=user_create.bio,
-        profile_image=user_create.profile_image,
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
+def get_user_by_id(id: int, session: Annotated[Session, Depends(get_session)]):
+    return session.exec(select(User).where(User.id == id)).first()

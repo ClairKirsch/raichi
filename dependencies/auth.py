@@ -7,13 +7,13 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 
 from dependencies.db import get_session
-from dependencies.users import User
+from dependencies.users import User, get_user_by_id, get_user_by_username
 
-SECRET_KEY = "05e36815ef8fb0f9495fa0450168319aa5afeaec20b64836a9914dff89a49d63"
+SECRET_KEY = "05e36815ef8fb0f9495fa0450168319aa5afeaec20b64836a9914dff89a49d63" # this should be in env vars or something but lol
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 5 * (
     24 * 60
@@ -41,18 +41,10 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return password_hash.hash(password, salt=password_hash.gensalt())
 
-
-def get_user(session: Annotated[Session, Depends(get_session)], username: str):
-    user_data = session.exec(select(User).where(User.username == username)).first()
-    if not user_data:
-        return None
-    return user_data
-
-
 def authenticate_user(
     session: Annotated[Session, Depends(get_session)], username: str, password: str
 ):
-    user = get_user(session, username)
+    user = get_user_by_username(session, username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -95,7 +87,7 @@ async def get_current_user(
         )
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(session, username=token_data.username)
+    user = get_user_by_id(session, id=token_data.id)
     if user is None:
         raise credentials_exception
     return user
