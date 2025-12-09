@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 from dependencies.auth import get_current_active_user
 
 from dependencies.db import get_session
-from dependencies.users import User, UserCreate, UserInfo
+from dependencies.users import User, UserCreate, UserInfo, UserProfile, UserUpdate
 from pwdlib import PasswordHash
 import re
 
@@ -24,7 +24,7 @@ router = APIRouter(tags=["user information"], prefix="/users")
 
 @router.get(
     "/me/",
-    response_model=UserInfo,
+    response_model=UserProfile,
     summary="Get current user info",
     description="Retrieve information about the currently authenticated user.",
 )
@@ -36,7 +36,7 @@ async def read_users_me(
 
 @router.get(
     "/{user_id}",
-    response_model=UserInfo,
+    response_model=UserProfile,
     summary="Get user info by ID",
     description="Retrieve information about a user by their unique ID.",
 )
@@ -78,3 +78,28 @@ async def create_user(
     session.commit()
     session.refresh(new_user)
     return new_user
+
+
+@router.put(
+    "/me/",
+    response_model=UserProfile,
+    summary="Update current user profile",
+    description="Update the profile information of the currently authenticated user.",
+)
+async def update_user_profile(
+    profile: UserUpdate,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    user = session.get(User, current_user.id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.full_name = profile.full_name
+    user.bio = profile.bio
+    user.profile_image = profile.profile_image
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
