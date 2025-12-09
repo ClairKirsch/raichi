@@ -1,9 +1,3 @@
-from fastapi import testclient
-from main import app
-client = testclient.TestClient(app)
-
-jwt_token = ""
-
 from fastapi.testclient import TestClient
 from main import app
 
