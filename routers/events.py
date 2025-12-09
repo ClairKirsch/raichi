@@ -29,10 +29,10 @@ async def read_venue_by_id(
 @router.post(
     "/",
     response_model=Event,
-    summary="Create a new venue",
-    description="Create a new venue with the provided information.",
+    summary="Create a new event",
+    description="Create a new event with the provided information.",
 )
-async def create_venue(
+async def create_event(
     event: EventCreate,
     session: Annotated[Session, Depends(get_session)],
 ):
