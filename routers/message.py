@@ -1,3 +1,4 @@
+from time import time
 from typing import Annotated
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
@@ -31,6 +32,7 @@ async def send_message(
         sender_id=sender_id,
         receiver_id=recipient_id,
         content=message,
+        datetime=int(time()),
     )
     session.add(message_instance)
     session.commit()
@@ -48,6 +50,6 @@ async def get_messages(
     session: Annotated[Session, Depends(get_session)],
 ):
     messages = session.exec(
-        select(Message).where(Message.receiver_id == current_user.id)
+        select(Message).where(Message.receiver_id == current_user.id).order_by(Message.datetime)
     ).all()
     return messages

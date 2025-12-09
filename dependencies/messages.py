@@ -9,6 +9,7 @@ class Message(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sender_id: Optional[int] = Field(default=None, foreign_key="user.id")
     receiver_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    datetime: Optional[int] = Field(default=None)
     content: str
 
     sender: Optional["User"] = Relationship(
@@ -31,4 +32,5 @@ class MessageInfo(SQLModel):
     id: int
     sender_id: int
     receiver_id: int
+    datetime: int
     content: str
