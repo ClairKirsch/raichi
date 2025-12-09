@@ -1,0 +1,40 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo (contains Containerfile in root)
+      - uses: actions/checkout@v4
+
+      # Configure AWS credentials (use an IAM role or AWS keys)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          # OR, if using access keys:
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build & push image
+      - name: Build and push image
+        run: |
+          IMAGE_TAG=latest
+          ECR_URI="${{ secrets.ECR_URI }}"
+
+          # Build using your Containerfile in the repo root
+          docker build -f Containerfile -t $ECR_URI:$IMAGE_TAG .
+
+          # Push to ECR
+          docker push $ECR_URI:$IMAGE_TAG
