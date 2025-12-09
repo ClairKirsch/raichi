@@ -34,7 +34,7 @@ async def create_venue(
     venue: VenueCreate,
     session: Annotated[Session, Depends(get_session)],
 ):
-    new_venue = VenueCreate.model_validate(venue)
+    new_venue = Venue.model_validate(venue)
     session.add(new_venue)
     session.commit()
     session.refresh(new_venue)
