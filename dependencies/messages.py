@@ -5,20 +5,30 @@ if TYPE_CHECKING:
     from .users import User
 
 
-class Messages(SQLModel, table=True):
+class Message(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-
-    sender_id: int | None = Field(default=None, foreign_key="user.id")
-    receiver_id: int | None = Field(default=None, foreign_key="user.id")
-
+    sender_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    receiver_id: Optional[int] = Field(default=None, foreign_key="user.id")
     content: str
 
     sender: Optional["User"] = Relationship(
         back_populates="messages_sent",
-        sa_relationship_kwargs={"foreign_keys": "Messages.sender_id"},
+        sa_relationship_kwargs={"foreign_keys": "Message.sender_id"},
     )
-
     receiver: Optional["User"] = Relationship(
         back_populates="messages_received",
-        sa_relationship_kwargs={"foreign_keys": "Messages.receiver_id"},
+        sa_relationship_kwargs={"foreign_keys": "Message.receiver_id"},
     )
+
+
+class MessageCreate(SQLModel):
+    sender_id: int
+    receiver_id: int
+    content: str
+
+
+class MessageInfo(SQLModel):
+    id: int
+    sender_id: int
+    receiver_id: int
+    content: str

@@ -17,6 +17,14 @@ def create_db_and_tables():
 
     SQLModel.metadata.create_all(engine)
 
+    users.User.model_rebuild()
+
+    events.Event.model_rebuild()
+
+    messages.Message.model_rebuild()
+
+    venue.Venue.model_rebuild()
+
 
 def get_session():
     with Session(engine) as session:
