@@ -10,7 +10,8 @@ class Message(SQLModel, table=True):
     sender_id: Optional[int] = Field(default=None, foreign_key="user.id")
     receiver_id: Optional[int] = Field(default=None, foreign_key="user.id")
     datetime: Optional[int] = Field(default=None)
-    content: str
+    subject: str | None = Field(default=None, max_length=100)
+    content: str | None = Field(default=None, max_length=1000)
 
     sender: Optional["User"] = Relationship(
         back_populates="messages_sent",
@@ -25,6 +26,7 @@ class Message(SQLModel, table=True):
 class MessageCreate(SQLModel):
     sender_id: int
     receiver_id: int
+    subject: str
     content: str
 
 
@@ -33,4 +35,5 @@ class MessageInfo(SQLModel):
     sender_id: int
     receiver_id: int
     datetime: int
+    subject: str
     content: str
