@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 from dependencies.auth import get_current_active_user
 from dependencies.db import get_session
 from dependencies.users import User
-from dependencies.messages import Message
+from dependencies.messages import Message, MessageCreate
 
 router = APIRouter(tags=["messaging"], prefix="/message")
 
@@ -17,27 +17,30 @@ router = APIRouter(tags=["messaging"], prefix="/message")
     description="Send a message to the specified user.",
 )
 async def send_message(
-    recipient_id: str,
-    sender_id: Annotated[int, Depends(get_current_active_user)],
+    user_id: str,
+    subject: str,
+    message: str,
     latitude: float,
     longitude: float,
-    message: str,
+    current_user: Annotated[User, Depends(get_current_active_user)],
     session: Annotated[Session, Depends(get_session)],
 ):
-    sender_id = sender_id.id
-    recipient = session.exec(select(User).where(User.id == recipient_id)).first()
+    sender_id = current_user.id
+    recipient = session.exec(select(User).where(User.id == user_id)).first()
     if not recipient:
         raise HTTPException(status_code=404, detail="Recipient user not found")
-    message_instance = Message(
+    message = MessageCreate(
         sender_id=sender_id,
-        receiver_id=recipient_id,
+        receiver_id=recipient.id,
+        subject=subject,
         content=message,
-        datetime=int(time()),
+        datetime=int(time())
     )
-    session.add(message_instance)
+    new_message = Message.model_validate(message)
+    session.add(new_message)
     session.commit()
-    session.refresh(message_instance)
-    return {"detail": "Message sent successfully", "message_id": message_instance.id}
+    session.refresh(new_message)
+    return {"detail": "Message sent successfully", "message_id": new_message.id}
 
 
 @router.get(

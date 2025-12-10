@@ -3,14 +3,14 @@ from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from sqlmodel import Session, select
 from dependencies.db import get_session
-from dependencies.venue import Venue, VenueCreate
+from dependencies.venue import Venue, VenueCreate, VenueInfo
 
 router = APIRouter(tags=["venue information"], prefix="/venues")
 
 
 @router.get(
     "/{venue_id}",
-    response_model=Venue,
+    response_model=VenueInfo,
     summary="Get venue info by ID",
     description="Retrieve information about a venue by its unique ID.",
 )
@@ -26,7 +26,7 @@ async def read_venue_by_id(
 
 @router.post(
     "/",
-    response_model=Venue,
+    response_model=VenueInfo,
     summary="Create a new venue",
     description="Create a new venue with the provided information.",
 )

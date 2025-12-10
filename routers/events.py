@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from sqlmodel import Session, select
 from dependencies.auth import get_current_active_user
 from dependencies.db import get_session
-from dependencies.events import EventCreate, Event
+from dependencies.events import EventCreate, Event, EventInfo
 from dependencies.users import User
 
 router = APIRouter(tags=["event information"], prefix="/events")
@@ -12,7 +12,7 @@ router = APIRouter(tags=["event information"], prefix="/events")
 
 @router.get(
     "/{event_id}",
-    response_model=Event,
+    response_model=EventInfo,
     summary="Get event info by ID",
     description="Retrieve information about a event by its unique ID.",
 )
