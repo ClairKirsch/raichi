@@ -12,6 +12,7 @@ class Venue(SQLModel, table=True):
     address: str | None = None
     latitude: float | None = None
     longitude: float | None = None
+    capacity: int | None = None
 
     events: list["Event"] = Relationship(back_populates="venue")
 
@@ -22,6 +23,7 @@ class VenueCreate(SQLModel):
     capacity: int | None = None
     latitude: float | None = None
     longitude: float | None = None
+
 
 class VenueInfo(SQLModel):
     id: int

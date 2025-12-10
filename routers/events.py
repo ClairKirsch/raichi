@@ -16,7 +16,7 @@ router = APIRouter(tags=["event information"], prefix="/events")
     summary="Get event info by ID",
     description="Retrieve information about a event by its unique ID.",
 )
-async def read_venue_by_id(
+async def read_event_by_id(
     event_id: str,
     session: Annotated[Session, Depends(get_session)],
 ):

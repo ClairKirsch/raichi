@@ -14,10 +14,12 @@ def create_db_and_tables():
     from . import users  # noqa: F401
     from . import venue  # noqa: F401
     from . import events  # noqa: F401
+    from . import tags  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
 
     users.User.model_rebuild()
+    users.UserProfile.model_rebuild()
 
     events.Event.model_rebuild()
 

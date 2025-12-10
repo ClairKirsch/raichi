@@ -7,6 +7,7 @@ from routers.user import router as user_router
 from routers.message import router as message_router
 from routers.venue import router as venue_router
 from routers.events import router as events_router
+from routers.tags import router as tags_router
 
 
 @asynccontextmanager
@@ -25,3 +26,4 @@ app.include_router(router=user_router)
 app.include_router(router=message_router)
 app.include_router(router=venue_router)
 app.include_router(router=events_router)
+app.include_router(router=tags_router)
