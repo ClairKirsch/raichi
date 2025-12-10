@@ -28,6 +28,7 @@ class MessageCreate(SQLModel):
     receiver_id: int
     subject: str
     content: str
+    datetime: int
 
 
 class MessageInfo(SQLModel):

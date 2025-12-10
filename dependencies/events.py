@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 from .association_tables import UserEventAssoc
+from .venue import VenueInfo
 
 if TYPE_CHECKING:
     from .users import User  # type: ignore
@@ -33,3 +34,4 @@ class EventInfo(SQLModel):
     title: str
     description: str | None = None
     date: str
+    venue: VenueInfo = Field(default=None)

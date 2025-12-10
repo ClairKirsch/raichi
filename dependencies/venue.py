@@ -22,3 +22,11 @@ class VenueCreate(SQLModel):
     capacity: int | None = None
     latitude: float | None = None
     longitude: float | None = None
+
+class VenueInfo(SQLModel):
+    id: int
+    name: str
+    address: str | None = None
+    capacity: int | None = None
+    latitude: float | None = None
+    longitude: float | None = None
