@@ -3,8 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from sqlmodel import Session, select
+from dependencies.association_tables import UserEventAssoc
 from dependencies.auth import get_current_active_user
 from dependencies.db import get_session
+from dependencies.events import Event
 from dependencies.users import User
 from dependencies.messages import Message, MessageCreate
 
@@ -20,8 +22,6 @@ async def send_message(
     user_id: str,
     subject: str,
     message: str,
-    latitude: float,
-    longitude: float,
     current_user: Annotated[User, Depends(get_current_active_user)],
     session: Annotated[Session, Depends(get_session)],
 ):
@@ -29,12 +29,22 @@ async def send_message(
     recipient = session.exec(select(User).where(User.id == user_id)).first()
     if not recipient:
         raise HTTPException(status_code=404, detail="Recipient user not found")
+    shared_event = session.exec(
+        select(Event)
+        .where(Event.attendees.any(UserEventAssoc.user_id == current_user.id))
+        .where(Event.attendees.any(UserEventAssoc.user_id == recipient.id))
+    ).first()
+    if not shared_event:
+        raise HTTPException(
+            status_code=400,
+            detail="You can only message users who share an event with you",
+        )
     message = MessageCreate(
         sender_id=sender_id,
         receiver_id=recipient.id,
         subject=subject,
         content=message,
-        datetime=int(time())
+        datetime=int(time()),
     )
     new_message = Message.model_validate(message)
     session.add(new_message)
@@ -53,6 +63,8 @@ async def get_messages(
     session: Annotated[Session, Depends(get_session)],
 ):
     messages = session.exec(
-        select(Message).where(Message.receiver_id == current_user.id).order_by(Message.datetime)
+        select(Message)
+        .where(Message.receiver_id == current_user.id)
+        .order_by(Message.datetime)
     ).all()
     return messages
