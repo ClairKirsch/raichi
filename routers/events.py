@@ -4,6 +4,7 @@ from fastapi.params import Depends
 from sqlmodel import Session, select
 from dependencies.auth import get_current_active_user
 from dependencies.db import get_session
+from dependencies.email import send_mail
 from dependencies.events import EventCreate, Event, EventInfo
 from dependencies.users import User
 
@@ -108,3 +109,13 @@ async def read_all_events(
 ):
     events = session.exec(select(Event)).all()
     return events
+
+
+@router.post(
+    "/email",
+    summary="Send reminder emails now.",
+    description="Send all reminder emails for tomorrow's event immediately.",
+)
+async def send_all_emails_now(session: Annotated[Session, Depends(get_session)]):
+    sent_letters = await send_mail(session)
+    return {"message": "Email reminders sent successfully.", "amount": sent_letters}

@@ -98,7 +98,8 @@ async def update_user_profile(
     user.full_name = profile.full_name
     user.bio = profile.bio
     user.profile_image = profile.profile_image
-
+    user.email = profile.email
+    User.model_validate(user)
     session.add(user)
     session.commit()
     session.refresh(user)

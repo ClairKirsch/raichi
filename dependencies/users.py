@@ -58,6 +58,7 @@ class UserProfile(SQLModel):
     full_name: str | None = None
     bio: str | None = None
     profile_image: str | None = None
+    email: str | None = None
     events: list["EventInfo"] = Field(default_factory=list)
 
 
@@ -65,6 +66,7 @@ class UserUpdate(SQLModel):
     full_name: str | None = None
     bio: str | None = None
     profile_image: str | None = None
+    email: str | None = None
 
 
 def get_user_by_username(

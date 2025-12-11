@@ -5,3 +5,4 @@ sqlmodel
 geopy
 APScheduler
 python-dotenv
+yagmail[all]
