@@ -238,3 +238,33 @@ def test_assign_tag_to_event():
         )
         assert response.status_code == 200
         assert response.json().get("detail") == "Tag associated with event successfully"
+
+def test_search_events_by_tag():
+    with TestClient(app) as client:
+        response = client.post(
+            "/search/by-tag?tag_name=Test Tag",
+            headers={"Authorization": f"Bearer {jwt_token}"},
+        )
+        assert response.status_code == 200, f"Error: {response.content}"
+        assert len(response.json()) > 0
+        assert response.json()[0].get("title") == "Test Event"
+
+def test_search_events_by_tag_substring():
+    with TestClient(app) as client:
+        response = client.post(
+            "/search/by-tag?tag_name=Tes",
+            headers={"Authorization": f"Bearer {jwt_token}"},
+        )
+        assert response.status_code == 200, f"Error: {response.content}"
+        assert len(response.json()) > 0
+        assert response.json()[0].get("title") == "Test Event"
+
+def test_search_events_by_location():
+    with TestClient(app) as client:
+        response = client.post(
+            "/search/by-location?latitude=40.7128&longitude=-74.0060&radius_miles=10",
+            headers={"Authorization": f"Bearer {jwt_token}"},
+        )
+        assert response.status_code == 200, f"Error: {response.content}"
+        assert len(response.json()) > 0
+        assert response.json()[0].get("title") == "Test Event"
