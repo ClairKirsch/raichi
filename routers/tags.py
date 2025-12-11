@@ -42,12 +42,15 @@ async def create_tag(
     session.refresh(new_tag)
     return new_tag
 
+
 @router.post(
     "/{event_id}/associate/{tag_id}",
     summary="Associate a tag with an event",
     description="Associate the specified tag with the specified event.",
 )
-async def associate_tag_with_event(event_id: int, tag_id: int, session: Session = Depends(get_session)):
+async def associate_tag_with_event(
+    event_id: int, tag_id: int, session: Session = Depends(get_session)
+):
     # Check if the event exists
     event = session.exec(select(Event).where(Event.id == event_id)).first()
     if not event:
@@ -64,5 +67,20 @@ async def associate_tag_with_event(event_id: int, tag_id: int, session: Session 
     session.commit()
     session.refresh(association)  # Refresh to load the new data
     if not association:
-        raise HTTPException(status_code=500, detail="Failed to associate tag with event")
+        raise HTTPException(
+            status_code=500, detail="Failed to associate tag with event"
+        )
     return {"detail": "Tag associated with event successfully"}
+
+
+@router.get(
+    "/",
+    response_model=list[TagInfo],
+    summary="Get all tags",
+    description="Retrieve a list of all tags.",
+)
+async def read_all_tags(
+    session: Annotated[Session, Depends(get_session)],
+):
+    tags = session.exec(select(Tag)).all()
+    return tags

@@ -10,6 +10,7 @@ from routers.events import router as events_router
 from routers.tags import router as tags_router
 from routers.search import router as search_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()

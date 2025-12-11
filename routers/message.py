@@ -65,6 +65,6 @@ async def get_messages(
     messages = session.exec(
         select(Message)
         .where(Message.receiver_id == current_user.id)
-        .order_by(Message.datetime)
+        .order_by(Message.date)
     ).all()
     return messages

@@ -10,17 +10,22 @@ from dependencies.tags import Tag
 
 
 router = APIRouter(tags=["search"], prefix="/search")
+
+
 @router.post(
     "/by-tag",
     summary="Search for events by tag",
     description="Search for events associated with a specific tag.",
     response_model=list[EventInfo],
 )
-async def search_events_by_tag(tag_name: str, session: Annotated[Session, Depends(get_session)]):
+async def search_events_by_tag(
+    tag_name: str, session: Annotated[Session, Depends(get_session)]
+):
     results = session.exec(
         select(Event).where(Event.tags.any(Tag.name.ilike(f"%{tag_name}%")))
-        ).all()
+    ).all()
     return results
+
 
 @router.post(
     "/by-location",
@@ -44,4 +49,3 @@ async def search_events_by_location(
             nearby_events.append(event)
 
     return nearby_events
-

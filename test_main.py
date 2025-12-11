@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
 from main import app
 import os.path
@@ -31,6 +32,19 @@ def test_user_login():
         jwt_token = response.json().get("access_token")
         assert jwt_token is not None
 
+def test_update_user_profile():
+    with TestClient(app) as client:
+        response = client.put(
+            "/users/me/",
+            json={
+                "full_name": "Test User",
+                "email": "test-uuf1dwdjp@srv1.mail-tester.com",
+                "bio": "This is a test user.",
+                "profile_image": "http://example.com/image.jpg",
+            },
+            headers={"Authorization": f"Bearer {jwt_token}"},
+        )
+        assert response.status_code == 200
 
 def test_create_venue():
     with TestClient(app) as client:
@@ -67,7 +81,7 @@ def test_create_event():
             json={
                 "title": "Test Event",
                 "description": "This is a test event.",
-                "date": "2025-12-31",
+                "date": (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d"),
                 "venue_id": 1,
             },
             headers={"Authorization": f"Bearer {jwt_token}"},
@@ -83,7 +97,7 @@ def test_get_event():
         assert response.status_code == 200
         assert response.json().get("title") == "Test Event"
         assert response.json().get("description") == "This is a test event."
-        assert response.json().get("date") == "2025-12-31"
+        assert response.json().get("date") == (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00")
         assert response.json().get("venue").get("name") == "Test Venue"
         assert response.json().get("venue").get("address") == "123 Test St"
         assert response.json().get("venue").get("latitude") == 40.7128
@@ -107,7 +121,7 @@ def test_attend_event():
             response.json().get("events")[0].get("description")
             == "This is a test event."
         )
-        assert response.json().get("events")[0].get("date") == "2025-12-31"
+        assert response.json().get("events")[0].get("date") == (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00")
 
 
 def test_unattend_event():
@@ -239,6 +253,7 @@ def test_assign_tag_to_event():
         assert response.status_code == 200
         assert response.json().get("detail") == "Tag associated with event successfully"
 
+
 def test_search_events_by_tag():
     with TestClient(app) as client:
         response = client.post(
@@ -249,6 +264,7 @@ def test_search_events_by_tag():
         assert len(response.json()) > 0
         assert response.json()[0].get("title") == "Test Event"
 
+
 def test_search_events_by_tag_substring():
     with TestClient(app) as client:
         response = client.post(
@@ -258,6 +274,7 @@ def test_search_events_by_tag_substring():
         assert response.status_code == 200, f"Error: {response.content}"
         assert len(response.json()) > 0
         assert response.json()[0].get("title") == "Test Event"
+
 
 def test_search_events_by_location():
     with TestClient(app) as client:

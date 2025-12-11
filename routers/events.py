@@ -95,3 +95,16 @@ async def unattend_event(
     session.add(event)
     session.commit()
     return {"message": "User has unattended the event"}
+
+
+@router.get(
+    "/",
+    response_model=list[EventInfo],
+    summary="Get all events",
+    description="Retrieve a list of all events.",
+)
+async def read_all_events(
+    session: Annotated[Session, Depends(get_session)],
+):
+    events = session.exec(select(Event)).all()
+    return events

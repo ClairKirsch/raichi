@@ -39,3 +39,16 @@ async def create_venue(
     session.commit()
     session.refresh(new_venue)
     return new_venue
+
+
+@router.get(
+    "/",
+    response_model=list[VenueInfo],
+    summary="Get all venues",
+    description="Retrieve a list of all venues.",
+)
+async def read_all_venues(
+    session: Annotated[Session, Depends(get_session)],
+):
+    venues = session.exec(select(Venue)).all()
+    return venues

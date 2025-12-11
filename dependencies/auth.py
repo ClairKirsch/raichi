@@ -13,7 +13,7 @@ from sqlmodel import Session
 from dependencies.db import get_session
 from dependencies.users import User, get_user_by_id, get_user_by_username
 
-SECRET_KEY = "05e36815ef8fb0f9495fa0450168319aa5afeaec20b64836a9914dff89a49d63" # this should be in env vars or something but lol
+SECRET_KEY = "05e36815ef8fb0f9495fa0450168319aa5afeaec20b64836a9914dff89a49d63"  # this should be in env vars or something but lol
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 5 * (
     24 * 60
@@ -40,6 +40,7 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return password_hash.hash(password, salt=password_hash.gensalt())
+
 
 def authenticate_user(
     session: Annotated[Session, Depends(get_session)], username: str, password: str

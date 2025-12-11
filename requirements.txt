@@ -3,3 +3,5 @@ pyjwt[crypto]
 pwdlib[argon2]
 sqlmodel
 geopy
+APScheduler
+python-dotenv

@@ -1,5 +1,6 @@
+from datetime import datetime
 from typing import Optional, TYPE_CHECKING
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .users import User
@@ -9,7 +10,7 @@ class Message(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sender_id: Optional[int] = Field(default=None, foreign_key="user.id")
     receiver_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    datetime: Optional[int] = Field(default=None)
+    date: datetime = Field(sa_column=Column(DateTime))
     subject: str | None = Field(default=None, max_length=100)
     content: str | None = Field(default=None, max_length=1000)
 
@@ -28,13 +29,13 @@ class MessageCreate(SQLModel):
     receiver_id: int
     subject: str
     content: str
-    datetime: int
+    date: datetime = Field(default_factory=datetime.now)
 
 
 class MessageInfo(SQLModel):
     id: int
     sender_id: int
     receiver_id: int
-    datetime: int
+    date: datetime = Field(default=None)
     subject: str
     content: str
