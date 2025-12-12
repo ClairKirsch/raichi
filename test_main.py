@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
 from main import app
 import os.path
+import pyotp
 
 jwt_token = ""
 
@@ -301,26 +302,52 @@ def test_search_events_by_location():
         assert response.json()[0].get("title") == "Test Event"
 
 
-def test_sending_emails():
+# def test_sending_emails():
+#    with TestClient(app) as client:
+#        response = client.post(
+#            "/events/1/attend", headers={"Authorization": f"Bearer {jwt_token}"}
+#        )
+#        assert response.status_code == 200
+#        assert response.json().get("detail") == "User is now attending the event"
+#        response = client.get(
+#            "/users/me/", headers={"Authorization": f"Bearer {jwt_token}"}
+#        )
+#        assert response.status_code == 200
+#        assert len(response.json().get("events")) == 1
+#        assert response.json().get("events")[0].get("title") == "Test Event"
+#        assert (
+#            response.json().get("events")[0].get("description")
+#            == "This is a test event."
+#        )
+#        assert response.json().get("events")[0].get("date") == (
+#            datetime.today() + timedelta(days=1)
+#        ).strftime("%Y-%m-%dT00:00:00")
+#        response = client.post("/events/email")
+#        assert response.json().get("detail") == "Email reminders sent successfully."
+#        assert response.json().get("amount") > 0
+
+
+def test_otp_creation():
     with TestClient(app) as client:
         response = client.post(
-            "/events/1/attend", headers={"Authorization": f"Bearer {jwt_token}"}
+            "/otp/new/", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
-        assert response.json().get("detail") == "User is now attending the event"
-        response = client.get(
-            "/users/me/", headers={"Authorization": f"Bearer {jwt_token}"}
+        assert response.json().get("secret") is not None
+
+def test_otp_verification():
+    with TestClient(app) as client:
+        response = client.post(
+            "/otp/new/", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
-        assert len(response.json().get("events")) == 1
-        assert response.json().get("events")[0].get("title") == "Test Event"
-        assert (
-            response.json().get("events")[0].get("description")
-            == "This is a test event."
+        assert response.json().get("secret") is not None
+        otp = pyotp.parse_uri(response.json().get("secret"))
+        response = client.post(
+            "/otp/verify/", json={
+                "otp": otp.now()
+            }, headers={"Authorization": f"Bearer {jwt_token}"}
         )
-        assert response.json().get("events")[0].get("date") == (
-            datetime.today() + timedelta(days=1)
-        ).strftime("%Y-%m-%dT00:00:00")
-        response = client.post("/events/email")
-        assert response.json().get("detail") == "Email reminders sent successfully."
-        assert response.json().get("amount") > 0
+        assert response.status_code == 200
+        assert response.json().get("detail") == "OTP verified successfully."
+

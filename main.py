@@ -9,6 +9,7 @@ from routers.venue import router as venue_router
 from routers.events import router as events_router
 from routers.tags import router as tags_router
 from routers.search import router as search_router
+from routers.otp import router as otp_router
 
 
 @asynccontextmanager
@@ -29,3 +30,4 @@ app.include_router(router=venue_router)
 app.include_router(router=events_router)
 app.include_router(router=tags_router)
 app.include_router(router=search_router)
+app.include_router(router=otp_router)

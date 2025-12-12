@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from typing_extensions import Annotated
 from fastapi.params import Depends
 from sqlmodel import Field, Relationship, SQLModel, Session, select
@@ -11,6 +11,7 @@ from .association_tables import UserEventAssoc
 if TYPE_CHECKING:
     from .events import Event  # type: ignore
     from .messages import Message  # type: ignore
+    from .otp_secrets import TOTPSecrets
 
 
 class User(SQLModel, table=True):
@@ -21,6 +22,7 @@ class User(SQLModel, table=True):
     hashed_password: str
     bio: str | None = None
     profile_image: str | None = None
+    totp_secrets: list["TOTPSecrets"] = Relationship(back_populates="user")
 
     # Relationships
     events: list["Event"] = Relationship(
