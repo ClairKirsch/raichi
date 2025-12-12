@@ -25,5 +25,6 @@ class TOTPSecretCreate(SQLModel):
 class TOTPSecretInfo(SQLModel):
     secret: str
 
+
 class TOTPVerifyRequest(BaseModel):
     otp: str

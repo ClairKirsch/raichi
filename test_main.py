@@ -335,6 +335,7 @@ def test_otp_creation():
         assert response.status_code == 200
         assert response.json().get("secret") is not None
 
+
 def test_otp_verification():
     with TestClient(app) as client:
         response = client.post(
@@ -344,10 +345,9 @@ def test_otp_verification():
         assert response.json().get("secret") is not None
         otp = pyotp.parse_uri(response.json().get("secret"))
         response = client.post(
-            "/otp/verify/", json={
-                "otp": otp.now()
-            }, headers={"Authorization": f"Bearer {jwt_token}"}
+            "/otp/verify/",
+            json={"otp": otp.now()},
+            headers={"Authorization": f"Bearer {jwt_token}"},
         )
         assert response.status_code == 200
         assert response.json().get("detail") == "OTP verified successfully."
-

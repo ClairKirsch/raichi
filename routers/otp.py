@@ -9,7 +9,12 @@ from dependencies.auth import get_current_active_user
 from dependencies.db import get_session
 
 from dependencies.users import User
-from dependencies.otp_secrets import TOTPSecretCreate, TOTPSecretInfo, TOTPSecrets, TOTPVerifyRequest
+from dependencies.otp_secrets import (
+    TOTPSecretCreate,
+    TOTPSecretInfo,
+    TOTPSecrets,
+    TOTPVerifyRequest,
+)
 
 router = APIRouter(tags=["one time passwords"], prefix="/otp")
 
