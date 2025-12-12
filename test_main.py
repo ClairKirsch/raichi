@@ -122,7 +122,7 @@ def test_attend_event():
             "/events/1/attend", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
-        assert response.json().get("message") == "User is now attending the event"
+        assert response.json().get("detail") == "User is now attending the event"
         response = client.get(
             "/users/me/", headers={"Authorization": f"Bearer {jwt_token}"}
         )
@@ -144,7 +144,7 @@ def test_unattend_event():
             "/events/1/unattend", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
-        assert response.json().get("message") == "User has unattended the event"
+        assert response.json().get("detail") == "User has unattended the event"
         response = client.get(
             "/users/me/", headers={"Authorization": f"Bearer {jwt_token}"}
         )
@@ -174,13 +174,13 @@ def test_send_message():
             "/events/1/attend", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
-        assert response.json().get("message") == "User is now attending the event"
+        assert response.json().get("detail") == "User is now attending the event"
 
         response = client.post(
             "/events/1/attend", headers={"Authorization": f"Bearer {jwt_token2}"}
         )
         assert response.status_code == 200
-        assert response.json().get("message") == "User is now attending the event"
+        assert response.json().get("detail") == "User is now attending the event"
 
         url = f"/message/{1}/send"
         params = {
@@ -307,7 +307,7 @@ def test_sending_emails():
             "/events/1/attend", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
-        assert response.json().get("message") == "User is now attending the event"
+        assert response.json().get("detail") == "User is now attending the event"
         response = client.get(
             "/users/me/", headers={"Authorization": f"Bearer {jwt_token}"}
         )
@@ -322,5 +322,5 @@ def test_sending_emails():
             datetime.today() + timedelta(days=1)
         ).strftime("%Y-%m-%dT00:00:00")
         response = client.post("/events/email")
-        assert response.json().get("message") == "Email reminders sent successfully."
+        assert response.json().get("detail") == "Email reminders sent successfully."
         assert response.json().get("amount") > 0

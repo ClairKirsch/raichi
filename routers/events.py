@@ -68,7 +68,7 @@ async def attend_event(
     event.attendees.append(user)
     session.add(event)
     session.commit()
-    return {"message": "User is now attending the event"}
+    return {"detail": "User is now attending the event"}
 
 
 @router.post(
@@ -95,7 +95,7 @@ async def unattend_event(
     event.attendees.remove(user)
     session.add(event)
     session.commit()
-    return {"message": "User has unattended the event"}
+    return {"detail": "User has unattended the event"}
 
 
 @router.get(
@@ -118,4 +118,4 @@ async def read_all_events(
 )
 async def send_all_emails_now(session: Annotated[Session, Depends(get_session)]):
     sent_letters = await send_mail(session)
-    return {"message": "Email reminders sent successfully.", "amount": sent_letters}
+    return {"detail": "Email reminders sent successfully.", "amount": sent_letters}
