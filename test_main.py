@@ -5,6 +5,7 @@ import os.path
 import pyotp
 
 jwt_token = ""
+twofactor_uri = ""
 
 
 def test_user_registration():
@@ -337,13 +338,15 @@ def test_otp_creation():
 
 
 def test_otp_verification():
+    global twofactor_uri
     with TestClient(app) as client:
         response = client.post(
             "/otp/new/", headers={"Authorization": f"Bearer {jwt_token}"}
         )
         assert response.status_code == 200
         assert response.json().get("secret") is not None
-        otp = pyotp.parse_uri(response.json().get("secret"))
+        twofactor_uri = response.json().get("secret")
+        otp = pyotp.parse_uri(twofactor_uri)
         response = client.post(
             "/otp/verify/",
             json={"otp": otp.now()},
@@ -351,3 +354,40 @@ def test_otp_verification():
         )
         assert response.status_code == 200
         assert response.json().get("detail") == "OTP verified successfully."
+
+
+def test_user_login_with_otp():
+    with TestClient(app) as client:
+        global twofactor_uri
+        otp = pyotp.parse_uri(twofactor_uri)
+        response = client.post(
+            "/token",
+            data={
+                "username": "testuser",
+                "password": "testpassword",
+                "otp": str(otp.now()),
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        assert response.status_code == 200
+        jwt_token = response.json().get("access_token")
+        assert jwt_token is not None
+
+
+def test_user_login_fail_with_otp():
+    with TestClient(app) as client:
+        global twofactor_uri
+        otp = pyotp.parse_uri(twofactor_uri)
+        response = client.post(
+            "/token",
+            data={
+                "username": "testuser",
+                "password": "testpassword",
+                "otp": str(00000000),
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        assert response.status_code == 401
+        assert response.json().get("detail") == "Incorrect username, password, or OTP"
+        jwt_token = response.json().get("access_token")
+        assert jwt_token is None

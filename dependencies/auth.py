@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Optional
 
 import jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from pydantic import BaseModel
 from sqlmodel import Session
-
+import pyotp
 
 from dependencies.db import get_session
 from dependencies.users import User, get_user_by_id, get_user_by_username
@@ -43,14 +43,30 @@ def get_password_hash(password):
 
 
 def authenticate_user(
-    session: Annotated[Session, Depends(get_session)], username: str, password: str
+    session: Annotated[Session, Depends(get_session)],
+    username: str,
+    password: str,
+    otp: Optional[int],
 ):
     user = get_user_by_username(session=session, username=username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
         return False
+    if user.totp_secrets and (otp is None or not verify_otp(user, otp)):
+        return False
     return user
+
+
+def verify_otp(
+    user: User,
+    otp: str,
+) -> bool:
+    for secret in user.totp_secrets:
+        totp = pyotp.TOTP(secret.secret)
+        if totp.verify(otp, valid_window=1) and secret.enabled:
+            return True
+    return False
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
